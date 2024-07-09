@@ -1,0 +1,63 @@
+import sqlite3
+
+def place_order(customer_id, product_id, order_date, total_amount):
+    try:
+        conn = sqlite3.connect('sportszilla.db')
+        cursor = conn.cursor()
+        
+        # Inserting a new order
+        cursor.execute("INSERT INTO Orders (customer_id, order_date, total_amount) VALUES (?, ?, ?)", (customer_id, order_date, total_amount))
+        order_id = cursor.lastrowid
+        
+        # Updating product quantity
+        cursor.execute("UPDATE products SET quantity = quantity - 1 WHERE product_id = ?", (product_id,))
+        
+        conn.commit()
+        print(f"Order placed successfully. Order ID: {order_id}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
+
+# Example of placing an order
+# place_order(1, 1, '2024-03-24', 150.00)
+
+def customer_analysis(customer_id):
+    try:
+        conn = sqlite3.connect('sportszilla.db')
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT SUM(total_amount) FROM Orders WHERE customer_id = ?", (customer_id,))
+        total_spent = cursor.fetchone()[0]
+        
+        print(f"Total amount spent by Customer {customer_id}: ${total_spent}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
+# Example of performing customer analysis
+# customer_analysis(1)
+
+//trigger 1 - Trigger for Updating Inventory on Order Placement
+
+CREATE TRIGGER UpdateInventoryAfterOrder
+AFTER INSERT ON Orders
+FOR EACH ROW
+BEGIN
+    UPDATE products SET quantity = quantity - 1 WHERE product_id = NEW.product_id;
+END;
+
+//trigger 2 - Trigger for Blocking Customer After 3 Failed Login Attempts
+
+CREATE TRIGGER IncreaseLoginAttempts
+AFTER UPDATE ON Customer
+FOR EACH ROW
+WHEN NEW.login_failed = 1
+BEGIN
+    UPDATE Customer SET login_attempts = login_attempts + 1 WHERE customer_id = NEW.customer_id;
+    IF (SELECT login_attempts FROM Customer WHERE customer_id = NEW.customer_id) >= 3 THEN
+        UPDATE Customer SET is_blocked = 1 WHERE customer_id = NEW.customer_id;
+    END IF;
+END;

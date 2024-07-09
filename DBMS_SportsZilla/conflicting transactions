@@ -1,0 +1,70 @@
+def conflicting_order(customer_id, product_id, quantity):
+    try:
+        mydb.start_transaction()
+
+
+        cursor.execute("SELECT * FROM products WHERE product_id=%s", (product_id,))
+        product = cursor.fetchone()
+        if not product:
+            messagebox.showinfo("Product Not Found", f"Product with ID {product_id} does not exist.")
+            mydb.rollback()
+            return
+
+
+        remove_products(product_id)
+
+
+        cursor.execute("SELECT * FROM products WHERE product_id=%s", (product_id,))
+        updated_product = cursor.fetchone()
+        if updated_product:
+            messagebox.showinfo("Product Deletion Failed", f"Product with ID {product_id} could not be deleted.")
+            mydb.rollback()
+            return
+
+        cursor.execute("SELECT price FROM products WHERE product_id=%s",(product_id,))
+        result_temp=cursor.fetchone()
+        total_price=int(result_temp[0])*quantity
+
+
+
+        create_an_order(customer_id, total_price)
+
+        mydb.commit()
+        messagebox.showinfo("Order Placed", "Order placed successfully.")
+
+    except Error as e:
+
+        mydb.rollback()
+        messagebox.showerror("Error", f"An error occurred: {e}")
+
+
+def conflicting_login(username, password,customer_id):
+    try:
+        mydb.start_transaction()
+
+
+        delete_customer_account(customer_id)
+
+
+        cursor.execute("SELECT customer_id FROM customer WHERE username=%s AND password=%s", (username, password))
+        user = cursor.fetchone()
+        if not user:
+            messagebox.showinfo("Login Failed", "User does not exist or incorrect credentials.")
+            mydb.rollback()
+            return False
+
+
+        messagebox.showinfo("Login Successful", "User logged in successfully.")
+
+
+        mydb.commit()
+        return True
+
+    except Error as e:
+
+        mydb.rollback()
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False
+ 
+
+

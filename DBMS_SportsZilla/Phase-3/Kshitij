@@ -1,0 +1,52 @@
+create database sportszilla;
+USE sportszilla;
+
+create table IF NOT EXISTS Vendor(
+	vendor_id int NOT NULL PRIMARY KEY,
+    organisation_name varchar(100) NOT NULL,
+    contact_person varchar(50) NOT NULL,
+    phone_number varchar(10) NOT NULL,
+    email varchar(50) NOT NULL,
+    documents varchar(50) NOT NULL
+);
+
+create table IF NOT EXISTS products(
+	product_id int NOT NULL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+	FOREIGN KEY (vendor_id) REFERENCES Vendor(vendor_id),
+    product_name varchar(50) NOT NULL,
+    price int NOT NULL,
+    quantity int NOT NULL
+);
+
+insert into Vendor values(1,'Nike','Yash Singh','8971269702',
+'yashs@gmail.com','YES');
+insert into Vendor values(2,'Adidas','Addy Chauhan','8990697023',
+'addychauhan@gmail.com','YES');
+insert into Vendor values(3,'Puma','Rahul Malik','9834701283',
+'rahul_malik@gmail.com','YES');
+insert into Vendor values(4,'Sketchers','Sonam Bhatt','9017629381',
+'sonambhatt@gmail.com','YES');
+insert into Vendor values(5,'Decathlon','Mohsin Khan','9380199822',
+'mohsink@gmail.com','YES');
+insert into Vendor values(6,'Reebok','Manish Kumar','7890187231',
+'manish_kumar@gmail.com','YES');
+insert into Vendor values(7,'HRX','Ritwik Ahuja','8900172560',
+'ritwikahuja@gmail.com','YES');
+insert into Vendor values(8,'Filla','Tanya Grover','9118922771',
+'tanyagrover@gmail.com','YES');
+insert into Vendor values(9,'Under Armour','Shreyas Singh','7789120982',
+'shreyassingh@gmail.com','YES');
+insert into Vendor values(10,'Nivia','Gurpreet','9886519877',
+'gurpreets@gmail.com','YES');
+
+insert into products values(1,1,'Football Size 5','800','10');
+insert into products values(2,1,'Football Studs','5800','25');
+insert into products values(3,2,'Football Socks','400','40');
+insert into products values(4,1,'Cricket Jersey','1800','10');
+insert into products values(5,3,'Football Jersey','1800','10');
+insert into products values(6,4,'Tennis Racket','3000','20');
+insert into products values(7,6,'Tennis Shoes','1000','10');
+insert into products values(8,7,'Cricket Shoes','3800','13');
+insert into products values(9,8,'Football Shin Gaurds','500','12');
+insert into products values(10,2,'Compression Shorts','999','5');

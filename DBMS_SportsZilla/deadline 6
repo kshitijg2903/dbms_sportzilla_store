@@ -1,0 +1,43 @@
+//Non-Conflicting Transactions
+
+START TRANSACTION;
+INSERT INTO Customer(customer_id, username, password, address, email, user_type) 
+VALUES (101, 'alice', 'pass123', '123 Wonderland Lane', 'alice@email.com', 'regular');
+COMMIT;
+
+START TRANSACTION;
+INSERT INTO Orders(order_id, customer_id, order_date, total_amount)
+VALUES (201, 101, '2024-04-18', 120.50);
+COMMIT;
+
+START TRANSACTION;
+INSERT INTO delivery(delivery_id, agent_name, delivery_address, status_delivery, order_id)
+VALUES (301, 'Bob', '123 Wonderland Lane', 'Delivered', 201);
+COMMIT;
+
+START TRANSACTION;
+INSERT INTO payment(payment_ID, amount, status_payment, order_id, date_of_payment)
+VALUES (401, 120, 'Completed', 201, '2024-04-19');
+COMMIT;
+
+//Conflicting Transactions
+
+//Concurrent Product Stock Update (by two different transactions)
+START TRANSACTION;
+UPDATE products SET quantity = quantity - 1 WHERE product_id = 5; -- Assuming initial quantity > 0
+COMMIT;
+
+START TRANSACTION;
+UPDATE products SET quantity = quantity + 10 WHERE product_id = 5;
+COMMIT;
+
+// Update Customer Address
+START TRANSACTION;
+UPDATE Customer SET address = '456 New Location Ave' WHERE customer_id = 101;
+COMMIT;
+
+START TRANSACTION;
+UPDATE Customer SET email = 'newalice@email.com' WHERE customer_id = 101;
+COMMIT;
+
+//Update Conflict

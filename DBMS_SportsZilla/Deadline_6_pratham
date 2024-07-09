@@ -1,0 +1,257 @@
+import mysql.connector
+import tkinter as tk
+from tkinter import simpledialog
+from tkinter import messagebox
+from datetime import date
+from mysql.connector import Error
+mydb = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='liver@40637',
+    database='sportszilla'
+
+)
+cursor = mydb.cursor()
+
+"sql function for getting total_ammount"
+
+
+
+def execute_transaction(operations):
+    try:
+        mydb.start_transaction()
+
+        # Execute operations
+        for operation in operations:
+            operation()
+
+
+        mydb.commit()
+
+    except Error as e:
+
+        mydb.rollback()
+
+
+
+def customer_analysis_sql_total_ammount(customer_id):
+    total_spent = 0
+    cursor.execute("SELECT total_amount FROM orders WHERE customer_id=%s", (customer_id,))
+    rows = cursor.fetchall()
+
+    for row in rows:
+        total_spent += int(row[0])
+    return total_spent
+
+
+"sql function for getting last date the customer placed an order "
+
+
+def customer_analysis_sql_last_date(customer_id):
+    str1 = ""
+    cursor.execute("SELECT MAX(order_date) FROM orders WHERE customer_id=%s ", (customer_id,))
+    row = cursor.fetchone()
+    str1 += str(row[0])
+
+    return str1
+
+
+
+
+"sql function for writing a review"
+def write_review_sql(message, rating, order_id):
+  def operation():
+    cursor.execute("SELECT MAX(review_id) FROM review")
+    review_temp = cursor.fetchone()
+    review_id = int(review_temp[0]) + 1
+
+    cursor.execute("INSERT INTO review(review_ID,order_id,rating,comments) VALUES(%s,%s,%s,%s) ",
+                   (review_id, order_id, rating, message))
+    execute_transaction(operation())
+
+
+"updating the products column"
+
+
+def update_quantity(product_id, quantity):
+    def operation():
+        cursor.execute("SELECT quantity FROM products WHERE product_id=%s", (product_id,))
+        temp1 = cursor.fetchone()
+        temp2 = int(temp1[0])
+        cursor.execute("UPDATE products SET quantity=%s WHERE product_id=%s", ((temp2 - int(quantity)), product_id))
+    execute_transaction([operation])
+
+"creating a new order"
+
+
+def create_an_order(customer_id, total_amount):
+  def operation():
+    cursor.execute("SELECT MAX(order_id) FROM orders")
+    order_id_temp = cursor.fetchone()
+    order_id = int(order_id_temp[0]) + 1
+    date1 = date.today()
+
+    cursor.execute("INSERT INTO orders(order_id,customer_id,order_date,total_amount) VALUES(%s,%s,%s,%s) ",
+                   (order_id, customer_id, date1, total_amount))
+  execute_transaction([operation()])
+
+
+"sql function for placing an order"
+
+
+def place_order_sql(customer_id, product_id, quantity):
+    update_quantity(product_id, quantity)
+    cursor.execute("SELECT price FROM products WHERE product_id=%s", (product_id,))
+    temp1 = cursor.fetchone()
+    price_product = int(temp1[0])
+    total_price = int(quantity) * int(price_product)
+    create_an_order(customer_id, total_price)
+
+
+def view_order_history(customer_name):
+    cursor.execute('SELECT customer_id FROM customer WHERE username=%s', (customer_name,))
+    result = cursor.fetchone()
+    result1 = result[0]
+    cursor.execute("SELECT order_date,total_amount FROM orders WHERE customer_id=%s ", (result1,))
+    order_history = cursor.fetchall()
+    if order_history:
+        order_history_message = "Order history for  " + customer_name + ":\n"
+        for order in order_history:
+            order_history_message += str(order) + "\n"
+    else:
+        order_history_message = "No order history found for" + customer_name
+
+    messagebox.showinfo("Order history ", order_history_message)
+
+
+def place_order(customer_id):
+    product_id = simpledialog.askstring("Input", "Product ID:", parent=app)
+    quantity = simpledialog.askstring("Input", "Enter quantity:", parent=app)
+    place_order_sql(customer_id, product_id, quantity)
+    message = f"order has been placed ,thank you for shopping at sportszilla"
+    messagebox.showinfo("Order_confirmation", message)
+
+
+def customer_analysis():
+    """Function to perform customer analysis."""
+    customer_id = simpledialog.askstring("Input", "Customer ID:", parent=app)
+    total_spent = customer_analysis_sql_total_ammount(customer_id)
+    last_order_date = customer_analysis_sql_last_date(customer_id)
+
+    message = f"Total amount spent: ${total_spent}\nLast order date: {last_order_date}"
+
+    messagebox.showinfo("Customer Analysis", message)
+
+
+def write_review():
+    order_id = simpledialog.askstring("Input", "Enter order_id :", parent=app)
+    message = simpledialog.askstring("Input", "Write your review:", parent=app)
+    rating = simpledialog.askstring("Input", "Enter your rating:", parent=app)
+    write_review_sql(message, rating, order_id)
+    messagebox.showinfo(f"Success", f"Review submitted successfully, Review entered:{message} Rating entered: {rating}")
+
+
+def customer_registration():
+  def operation():
+    customer_name = simpledialog.askstring("Input", "Enter your name:", parent=app)
+    customer_email = simpledialog.askstring("Input", "Enter your email:", parent=app)
+    customer_address = simpledialog.askstring("Input", "Enter your address:", parent=app)
+    cursor.execute("SELECT MAX(customer_id) FROM customer")
+    customer_id_temp = cursor.fetchone()
+    customer_id = int(customer_id_temp[0]) + 1
+    customer_password = simpledialog.askstring("Input", "Enter password:", parent=app)
+    cursor.execute(
+        "INSERT INTO customer(customer_id,username,password,address,email,user_type) VALUES(%s,%s,%s,%s,%s,%s) ",
+        (customer_id, customer_name, customer_password, customer_address, customer_email, "customer"))
+  messagebox.showinfo(f"Success", f"Thank you for registering on our website")
+  execute_transaction([operation])
+
+
+def customer_login():
+    customer_name = simpledialog.askstring("Input", "Enter your username ", parent=app)
+    cursor.execute("SELECT customer_id FROM customer WHERE username=%s", (customer_name,))
+    customer_id_temp = cursor.fetchone()
+
+    customer_id = customer_id_temp[0]
+    customer_password = simpledialog.askstring("Input", "Enter your password", parent=app)
+    cursor.execute("SELECT password FROM customer WHERE username=%s", (customer_name,))
+    result = cursor.fetchone()
+    if result:
+        password = result[0]
+        if customer_password == password:
+            display_buttons(customer_name, customer_id)
+        else:
+            messagebox.showinfo(f"incorrect password",
+                                f"please try again")
+    else:
+        messagebox.showinfo(f"user does not exist!",
+                            f"please enter a valid username")
+
+
+
+def display_buttons(customer_name, customer_id):
+    registration_button.pack_forget()
+    login_button.pack_forget()
+    order_button = tk.Button(app, text="Place an order", command=lambda: place_order(customer_id),
+                             height=3,
+                             width=30)
+    order_button.pack(pady=10)
+    review_button.pack(pady=10)
+    view_history_button = tk.Button(app, text="View order history", command=lambda: view_order_history(customer_name),
+                                    height=3,
+                                    width=30)
+    view_history_button.pack(pady=10)
+
+"register vendor"
+def register_vendor(vendor_id,organisation_name,contact_person,phone_number,email):
+  def operation():
+    cursor.execute("INSERT INTO vendor(vendor_id,organisation_name,contact_person,phone_number,email) VALUES(%s,%s,%s,%s,%s,%s)",(vendor_id,organisation_name,contact_person,phone_number,email,"YES"))
+    execute_transaction(operation())
+
+
+"register distributor"
+def register_distributors(distributor_id,name):
+    def operation():
+        cursor.execute("INSERT INTO distributors(Distributor_ID,Name) VALUES(%s,%s)",(distributor_id,name))
+        execute_transaction(operation())
+
+
+"function for adding new products"
+def update_product_catalog(vendor_id,product_name,price,quantity):
+    def operation():
+        cursor.execute("SELECT MAX(product_id) FROM products ")
+        product_temp = cursor.fetchone()
+        product_id = int(product_temp[0]) + 1
+
+        cursor.execute("INSERT INTO products(product_id,vendor_id,product_name,price,quantity) VALUES(%s,%s,%s,%s,%s)",(product_id,vendor_id,product_name,price,quantity))
+        execute_transaction(operation())
+
+
+"function for removing products"
+def remove_products(product_id ):
+        cursor.execute("DELETE FROM products WHERE product_id=%s",(product_id,))
+        mydb.commit()
+
+
+def delete_customer_account(customer_id):
+    cursor.execute("DELETE FROM customer WHERE customer_id=%s",(customer_id,))
+    mydb.commit()
+
+app = tk.Tk()
+app.title("Sportszilla Management System")
+app.geometry("600x600")
+
+# Add buttons
+
+registration_button = tk.Button(app, text="Register yourself", command=customer_registration, height=3, width=30)
+registration_button.pack(pady=10)
+
+login_button = tk.Button(app, text="Login", command=customer_login, height=3, width=30)
+login_button.pack(pady=10)
+
+analysis_button = tk.Button(app, text="Customer Analysis", command=customer_analysis, height=3, width=30)
+
+review_button = tk.Button(app, text="write a review", command=write_review, height=3, width=30)
+
+# Start the GUI event loop
+app.mainloop()

@@ -1,0 +1,40 @@
+import tkinter as tk
+from tkinter import simpledialog
+from tkinter import messagebox
+
+def place_order():
+    """Function to place an order."""
+    customer_id = simpledialog.askstring("Input", "Customer ID:", parent=app)
+    product_id = simpledialog.askstring("Input", "Product ID:", parent=app)
+    order_date = simpledialog.askstring("Input", "Order Date (YYYY-MM-DD):", parent=app)
+    total_amount = simpledialog.askstring("Input", "Total Amount:", parent=app)
+    
+    # Call your SQL function here with the collected data
+    # Assuming a function exists: place_order_sql(customer_id, product_id, order_date, total_amount)
+    
+    messagebox.showinfo("Success", "Order placed successfully!")
+
+def customer_analysis():
+    """Function to perform customer analysis."""
+    customer_id = simpledialog.askstring("Input", "Customer ID:", parent=app)
+    
+    # Call your SQL function here to perform analysis and get total spent
+    # Assuming a function exists: total_spent = customer_analysis_sql(customer_id)
+    
+    total_spent = 100  # Placeholder value, replace with actual SQL query result
+    messagebox.showinfo("Customer Analysis", f"Total amount spent: ${total_spent}")
+
+# Create the main window
+app = tk.Tk()
+app.title("Sportszilla Management System")
+app.geometry("300x150")
+
+# Add buttons
+order_button = tk.Button(app, text="Place an Order", command=place_order)
+order_button.pack(pady=10)
+
+analysis_button = tk.Button(app, text="Customer Analysis", command=customer_analysis)
+analysis_button.pack(pady=10)
+
+# Start the GUI event loop
+app.mainloop()

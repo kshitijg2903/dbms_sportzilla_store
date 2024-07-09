@@ -1,0 +1,65 @@
+
+USE sportszilla;
+
+CREATE TABLE IF NOT EXISTS delivery(
+   delivery_id int NOT NULL PRIMARY KEY,
+   agent_name varchar(100) NOT NULL,
+   delivery_address varchar(100) NOT NULL,
+   status_delivery varchar(20) NOT NULL,
+   order_id int NOT NULL,
+   FOREIGN KEY(order_id) REFERENCES Orders(order_id)
+   
+);
+
+CREATE TABLE IF NOT EXISTS review(
+   review_ID int NOT NULL PRIMARY KEY,
+   order_id int NOT NULL,
+   FOREIGN KEY(order_id) REFERENCES Orders(order_id),
+   rating int NOT NULL CHECK(rating>=1 and rating<=5),
+   comments varchar(100)
+      
+);
+
+CREATE TABLE IF NOT EXISTS payment(
+   payment_ID int NOT NULL PRIMARY KEY,
+   amount int NOT NULL CHECK(ammount>=1),
+   status_payment varchar(100) NOT NULL,
+   order_id int NOT NULL,
+   FOREIGN KEY(order_id) REFERENCES Orders(order_id),
+   date_of_payment  varchar(100) NOT NULL
+   
+);
+
+INSERT INTO delivery (delivery_id, agent_name, delivery_address, status_delivery, order_id) VALUES
+(1, 'John Doe', '123 Main St', 'Delivered', 1),
+(2, 'Jane Smith', '456 Elm St', 'Pending', 2),
+(3, 'Alice Johnson', '789 Oak St', 'Delivered', 3),
+(4, 'Bob Williams', '101 Pine St', 'In Transit', 4),
+(5, 'Charlie Brown', '202 Maple St', 'Delivered', 5),
+(6, 'David Davis', '303 Cedar St', 'Delivered', 6),
+(7, 'Emma Wilson', '404 Walnut St', 'Pending', 7),
+(8, 'Frank Thomas', '505 Birch St', 'In Transit', 8),
+(9, 'Grace Lee', '606 Ash St', 'Delivered', 9),
+(10, 'Henry Martin', '707 Spruce St', 'Delivered', 10);
+
+
+INSERT INTO review (review_ID, order_id, rating, comments) VALUES
+(1, 1, 5, 'Great service!'),
+(2, 3, 4, 'Delivery was a bit late but overall good experience'),
+(3, 5, 3, 'Package arrived damaged'),
+(4, 6, 5, 'Fast delivery, thank you!'),
+(5, 9, 2, 'Poor communication with the delivery agent');
+
+
+
+INSERT INTO payment (payment_ID, ammount, status_payment, order_id, date_of_payment) VALUES
+(1, 50, 'Paid', 1, '2024-02-10'),
+(2, 75, 'Paid', 2, '2024-02-11'),
+(3, 100, 'Paid', 3, '2024-02-09'),
+(4, 60, 'Pending', 4, '2024-02-20'),
+(5, 80, 'Paid', 5, '2024-02-08'),
+(6, 70, 'Paid', 6, '2024-02-07'),
+(7, 90, 'Pending', 7, '2024-02-014'),
+(8, 55, 'Paid', 8, '2024-02-06'),
+(9, 65, 'Paid', 9, '2024-02-05'),
+(10, 85, 'Paid', 10, '2024-02-04');

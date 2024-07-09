@@ -1,0 +1,41 @@
+USE sportszilla;
+
+CREATE TABLE IF NOT EXISTS Customer(
+    customer_id int NOT NULL PRIMARY KEY,
+    username varchar(20) NOT NULL,
+    password varchar(20) NOT NULL,
+    address varchar(50) NOT NULL,
+    email varchar(20) NOT NULL,
+    user_type varchar(20) NOT NULL
+);
+
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (1, 'Rahul', 'password1', '123 Main St', 'rahul@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (2, 'Ajay', 'password2', '456 Elm St', 'ajay123@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (3, 'Amogh', 'password3', '789 Oak St', 'amogh0@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (4, 'Shreyas', 'password4', '100 Pine St', 'shreyask@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (5, 'Ahan', 'password5', '111 Maple St', 'ahan_p@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (6, 'Kshitij', 'password6', '122 Birch St', 'kshitij167@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (7, 'Aakarsh', 'password7', '133 Cedar St', 'aakarsh@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (8, 'Sahil', 'password8', '144 Walnut St', 'sahil@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (9, 'Rohit', 'password9', '155 Willow St', 'rohitn@example.com', 'customer');
+INSERT INTO Customer (customer_id, username, password, address, email, user_type) VALUES (10, 'Pranav', 'password10', '166 Spruce St', 'pravanb@example.com', 'customer');
+
+CREATE TABLE IF NOT EXISTS Orders (
+    order_id int NOT NULL PRIMARY KEY,
+    customer_id int,
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
+    order_date varchar(10) NOT NULL,
+    total_amount float NOT NULL
+);
+
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (1, 1, '2022-01-01', 50.00);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (2, 2, '2022-01-02', 75.50);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (3, 7, '2022-01-03', 100.00);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (4, 4, '2022-01-04', 125.25);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (5, 9, '2022-01-05', 200.00);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (6, 6, '2022-01-06', 150.55);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (7, 8, '2022-01-07', 250.75);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (8, 8, '2022-01-08', 300.00);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (9, 9, '2022-01-09', 175.30);
+INSERT INTO Orders (order_id, customer_id, order_date, total_amount) VALUES (10, 10, '2022-01-10', 225.00);
+
